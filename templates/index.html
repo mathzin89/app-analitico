@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crosstab Ponderado (.sav)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="title">
+    <div class="logo" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="#eef2ff">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/>
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:18px">Cruzamentos e Residuais</div>
+      <div class="muted" style="margin-top:2px">CSV · XLSX · SAV — ordem e peso como no SPSS</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button id="themeToggle" class="ghost-btn" title="Alternar tema">🌙/☀️</button>
+    <span id="liveStatus" class="status offline" title="Estado do app">
+      <span class="dot"></span><span id="fileStatus">Aguardando arquivo…</span>
+      <span class="spacer"></span>
+    </span>
+  </div>
+</header>
+
+<div class="container">
+  <section class="card">
+    <h2>1) Upload do arquivo</h2>
+    <form id="uploadForm" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+      <input type="file" id="fileInput" name="file" accept=".sav"/>
+      <button type="submit">Carregar</button>
+      <button id="clearFileBtn" type="button" class="close-btn" title="Fechar arquivo" style="display:none;">✕</button>
+    </form>
+    <p id="uploadMsg"></p>
+  </section>
+
+  <section class="card">
+    <h2>2) Configurações</h2>
+
+    <div class="grid">
+      <div>
+        <label for="rowSelect">Linha:</label>
+        <input type="text" id="rowSearch" class="search" placeholder="Pesquisar variável…">
+        <select id="rowSelect" multiple size="12"></select>
+
+        <div class="chips" id="rowChips"></div>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+          <button type="button" id="rowSelectAll">Selecionar visíveis</button>
+          <button type="button" id="rowClear">Limpar seleção</button>
+          <small class="muted" style="margin-left:auto">Dica: Ctrl/Cmd para múltiplas</small>
+        </div>
+      </div>
+
+      <div>
+        <label for="colSelect">Coluna:</label>
+        <input type="text" id="colSearch" class="search" placeholder="Pesquisar variável…">
+        <select id="colSelect" multiple size="12"></select>
+
+        <div class="chips" id="colChips"></div>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem;">
+          <button type="button" id="colSelectAll">Selecionar visíveis</button>
+          <button type="button" id="colClear">Limpar seleção</button>
+          <small class="muted" style="margin-left:auto">Dica: Ctrl/Cmd para múltiplas</small>
+        </div>
+      </div>
+
+      <div>
+        <label for="weightInput">Peso:</label>
+        <input type="text" id="weightInput" list="varsList" placeholder="peso" value="peso"/>
+        <datalist id="varsList"></datalist>
+      </div>
+    </div>
+
+    <div class="options">
+      <div class="group">
+        <h3>Counts</h3>
+        <label><input type="checkbox" value="observed" checked> Observed</label>
+        <label><input type="checkbox" value="expected"> Expected</label>
+      </div>
+
+      <div class="group">
+        <h3>Percentages</h3>
+        <label><input type="checkbox" value="row_pct"> Row</label>
+        <label><input type="checkbox" value="col_pct" checked> Column</label>
+        <label><input type="checkbox" value="total_pct"> Total</label>
+      </div>
+
+      <div class="group">
+        <h3>Residuals</h3>
+        <label><input type="checkbox" value="resid"> Unstandardized</label>
+        <label><input type="checkbox" value="std_resid"> Standardized</label>
+        <label><input type="checkbox" value="adj_std_resid" checked> Adjusted standardized</label>
+      </div>
+
+      <div class="group">
+        <h3>Noninteger Weights</h3>
+        <label><input type="radio" name="niw" value="none"> No adjustments</label>
+        <label><input type="radio" name="niw" value="round_cell" checked> Round cell counts</label>
+        <label><input type="radio" name="niw" value="trunc_cell"> Truncate cell counts</label>
+        <label><input type="radio" name="niw" value="round_case"> Round case weights</label>
+        <label><input type="radio" name="niw" value="trunc_case"> Truncate case weights</label>
+      </div>
+    </div>
+
+    <button id="runBtn" type="button">Gerar Tabela(s)</button>
+    <button id="exportBtn" type="button" disabled>Exportar Excel</button>
+    <p id="errorMsg" class="error"></p>
+  </section>
+
+  <section class="card" id="results"></section>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>
