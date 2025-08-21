@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>INSTITUTO INFORMA — Portal de Projetos</title>
+  <meta name="description" content="Hub do INSTITUTO INFORMA para unificar links e apps em um único lugar." />
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #11182a;
+      --text: #e5eaf7;
+      --muted: #a3acc2;
+      --accent: #6ea8fe;
+      --ok: #34d399;
+      --warn: #f59e0b;
+      --shadow: 0 8px 25px rgba(0,0,0,.25);
+      --radius: 18px;
+      /* Cores para as setas e paginação do carrossel */
+      --swiper-navigation-color: var(--accent);
+      --swiper-pagination-color: var(--accent);
+    }
+    .light {
+      --bg: #f5f6fa;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --accent: #2563eb;
+      --ok: #059669;
+      --warn: #b45309;
+      --shadow: 0 8px 20px rgba(17,24,39,.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font: 500 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", Helvetica, Arial;
+      background: radial-gradient(circle at top right, rgba(110,168,254,.12), transparent 0%),
+                  radial-gradient(circle at bottom left, rgba(52,211,153,.10), transparent 0%),
+                  var(--bg);
+      color: var(--text);
+    }
+    /* Header */
+    header {
+      position: sticky; top:0; z-index: 20;
+      backdrop-filter: blur(10px) saturate(1.1);
+      background: color-mix(in oklab, var(--bg) 70%, transparent);
+      border-bottom: 1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 14px 18px; }
+    .row { display:flex; gap:14px; align-items:center; flex-wrap:wrap }
+
+    .brand { display:flex; align-items:center; gap:14px; font-weight: 800; letter-spacing:.2px }
+    .brand img { height: 42px; width: auto; display:block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25)); }
+    .brand small { display:block; color: var(--muted); font-weight:600 }
+
+    .search { position: relative; flex:1; min-width: 240px; }
+    .search input {
+      width:100%; padding: 10px 40px 10px 42px; border-radius: 12px; border:1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+      background: var(--panel); color: var(--text); outline: none; box-shadow: var(--shadow);
+    }
+    .search svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.7 }
+
+    .btn { border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); background: var(--panel); color: var(--text);
+            padding:10px 12px; border-radius:12px; cursor:pointer; box-shadow: var(--shadow); display:inline-flex; align-items:center; gap:8px }
+    .btn:hover { transform: translateY(-1px); }
+
+    main { padding: 18px 18px 60px; max-width: 1200px; margin: 0 auto; }
+    
+    /* ESTILOS PARA O CARROSSEL */
+    .swiper {
+      width: 100%;
+      padding: 10px 0 40px 0; /* Espaço para a paginação abaixo */
+    }
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      height: auto; /* Permite que a altura se ajuste ao card */
+    }
+    .card {
+      width: 100%;
+      height: 100%;
+      position:relative; border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); background: var(--panel); border-radius: var(--radius);
+      padding:16px; display:flex; flex-direction:column; gap:10px; box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 12px 34px rgba(0,0,0,.28); }
+    
+    .title { display:flex; align-items:center; gap:8px }
+    .icon { width: 22px; height: 22px; display:inline-grid; place-items:center }
+    .card h3 { margin:0; font-size: 1.08rem; }
+    .card p { margin:0; color: var(--muted); font-size:.95rem }
+    .tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .tag { font-size: .75rem; padding: 4px 8px; border-radius: 999px; border:1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+            background: color-mix(in oklab, var(--panel) 85%, var(--bg)); color: var(--muted); }
+
+    .actions { margin-top:auto; display:flex; gap:8px; flex-wrap:wrap }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius: 999px; text-decoration:none; font-weight:600; }
+    .primary { background: var(--accent); color:#fff; border:none; }
+    .ghost { background: transparent; border:1px solid color-mix(in oklab, var(--panel) 70%, transparent); color: var(--text); }
+
+    .status { position:absolute; right:12px; top:12px; padding:5px 8px; border-radius:999px; font-size:.72rem; font-weight:800; letter-spacing:.3px; }
+    .ok { background: color-mix(in oklab, var(--ok) 30%, transparent); color: var(--ok); border:1px solid color-mix(in oklab, var(--ok) 60%, transparent); }
+    .beta { background: color-mix(in oklab, var(--warn) 30%, transparent); color: var(--warn); border:1px solid color-mix(in oklab, var(--warn) 60%, transparent); }
+
+    /* ABA/TABS de Conteúdo (iFrame) */
+    .tabs {
+      margin-top: 22px;
+      border:1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .tabbar { display:flex; gap:6px; align-items:center; padding:8px; overflow:auto; border-bottom:1px solid color-mix(in oklab, var(--panel) 70%, transparent); }
+    .tab {
+      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius: 999px;
+      background: color-mix(in oklab, var(--panel) 85%, var(--bg)); color: var(--text); border:1px solid color-mix(in oklab, var(--panel) 70%, transparent);
+      cursor:pointer; white-space: nowrap; user-select: none;
+      transition: background .2s ease;
+    }
+    .tab.active { background: var(--accent); color:#fff; border-color: transparent; }
+    .tab .close { opacity:.8; font-weight:900; border: none; background: transparent; color: inherit; cursor: pointer; }
+    .tab .close:hover { opacity:1 }
+
+    .tabcontent { position: relative; min-height: 70vh; background: #0b0f1a; }
+    .tabcontent iframe { width: 100%; height: 70vh; border: 0; background:#0a0a0a; }
+    .tab-empty { padding: 18px; color: var(--muted); }
+
+    footer { max-width: 1200px; margin: 16px auto; color: var(--muted); padding: 0 18px }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row">
+      <div class="brand">
+        <img src="InformaLogo.png" alt="INSTITUTO INFORMA" onerror="this.replaceWith(Object.assign(document.createElement('strong'),{textContent:'INSTITUTO INFORMA'}))"/>
+        <small>Portal de Projetos</small>
+      </div>
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/>
+          <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input id="q" type="search" placeholder="Buscar por nome, tag… (Ctrl/Cmd + K)" autocomplete="off" style="padding-left:42px"/>
+      </div>
+      <button id="toggleTheme" class="btn" title="Alternar tema">🌙 Tema</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+        <div class="swiper">
+            <div class="swiper-wrapper" id="projects-container">
+                </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+        </div>
+    </section>
+
+    <section class="tabs" id="tabs">
+      <div class="tabbar" id="tabbar"></div>
+      <div class="tabcontent" id="tabcontent">
+        <div class="tab-empty" id="tabempty">Nenhuma aba aberta. Clique em <b>Abrir no portal</b> em um projeto.</div>
+      </div>
+    </section>
+
+    <footer>
+      <small>
+        Dica: alguns sites bloqueiam incorporação em iframe (CSP / X-Frame-Options). Se uma aba ficar vazia, use o botão <b>Abrir ↗</b> do cartão.
+      </small>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    // === PROJETOS ===
+    const PROJECTS = [
+      { id: "mapa-calor", name: "Mapa de Calor", desc: "Visualização interativa de densidade.", url: "https://appmapadecalor.netlify.app/", tags: ["institucional", "visualização", "mapa"], status: "OK", embed: true },
+      { id: "mapa-correspondencia", name: "Mapa de Correspondência", desc: "Aplicativo para mapa de correspondência.", url: "https://executavel.streamlit.app/", tags: ["python", "dados", "streamlit"], status: "OK", embed: true },
+      { id: "correlação", name: "Correlação", desc: "Aplicativo de correlação do INSTITUTO INFORMA.", url: "https://correlacao.onrender.com/", tags: ["python", "html"], status: "OK", embed: true },
+      { id: "App-bases-reduzidas", name: "Base Reduzida", desc: "Aplicativo de base reduzida do INSTITUTO INFORMA.", url: "https://bases-reduzidas.streamlit.app/", tags: ["python", "streamlit"], status: "OK", embed: true },
+      { id: "App-cruzamento", name: "Cruzamentos", desc: "Aplicativo para 'Jogos de Tabela'.", url: "https://spss-flask-app.onrender.com/", tags: ["python","html"], status: "OK", embed: true },
+      { id: "analise-residual", name: "Análises Residuais", desc: "Aplicativo para analise residual.", url: "https://app-analitico.onrender.com/", tags: ["python","html"], status: "OK", embed: true },
+      { id: "Frequência-Ponderada", name: "Frequência Ponderada", desc: "Aplicativo de Frequência Ponderada.", url: "https://93bdeea5-704a-4e9c-bf14-492cffc5c55e-00-1mzo8wazetxn4.spock.replit.dev/", tags: ["python","html"], status: "OK", embed: true }
+    ];
+
+    // === ICONES ===
+    const ICONS = {
+      map: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3V7z'/><circle cx='9' cy='10' r='1.4'/><circle cx='15' cy='14' r='1.4'/></svg>`,
+      python: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6'><path d='M8 3h5a4 4 0 014 4v3H9a3 3 0 00-3 3v4H6a3 3 0 01-3-3V7a4 4 0 014-4z'/><circle cx='14' cy='6' r='1.2'/><path d='M16 21h-5a4 4 0 01-4-4v-3h8a3 3 0 013 3v4z'/><circle cx='10' cy='18' r='1.2'/></svg>`,
+      api: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M4 8h16M4 12h10M4 16h16'/><circle cx='19' cy='12' r='1.8'/></svg>`,
+      bi: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='10' width='3' height='8' rx='1.2'/><rect x='9' y='6' width='3' height='12' rx='1.2'/><rect x='15' y='13' width='3' height='5' rx='1.2'/></svg>`,
+      docs: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/><path d='M14 3v5h5'/></svg>`,
+      default: `<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='4' y='4' width='16' height='16' rx='3'/></svg>`
+    };
+    function guessType(item){
+      const name = (item.name||'').toLowerCase();
+      const tags = (item.tags||[]).map(t=>t.toLowerCase()).join(' ');
+      if (/mapa|map|heat|calor/.test(name+tags)) return 'map';
+      if (/python|streamlit|fastapi/.test(name+tags)) return 'python';
+      if (/api|swagger|openapi/.test(name+tags)) return 'api';
+      if (/bi|dashboard|metabase|power ?bi/.test(name+tags)) return 'bi';
+      if (/doc|guia|manual/.test(name+tags)) return 'docs';
+      return 'default';
+    }
+    function iconColor(type){
+      switch(type){
+        case 'map': return '#3b82f6';
+        case 'python': return '#f59e0b';
+        case 'api': return '#10b981';
+        case 'bi': return '#8b5cf6';
+        case 'docs': return '#64748b';
+        default: return 'currentColor';
+      }
+    }
+    function getIcon(item){
+      const type = guessType(item);
+      return { svg: ICONS[type] || ICONS.default, color: iconColor(type) };
+    }
+
+    // === LÓGICA DE RENDERIZAÇÃO E CARROSSEL (ATUALIZADA) ===
+    const projectsContainer = document.getElementById('projects-container');
+    const q = document.getElementById('q');
+    let swiperInstance = null; // Guarda a instância do Swiper
+
+    const swiperConfig = {
+        loop: false,
+        spaceBetween: 30,
+        slidesPerView: 1, // Começa com 1 slide em telas pequenas
+        breakpoints: {
+            640: { slidesPerView: 2 },
+            900: { slidesPerView: 3 },
+            1200: { slidesPerView: 4 },
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    };
+
+    function renderCarousel(list) {
+      if (swiperInstance) {
+        swiperInstance.destroy(true, true);
+        swiperInstance = null;
+      }
+      projectsContainer.innerHTML = '';
+      
+      list.forEach(p => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        const icon = getIcon(p);
+        const cardHTML = `
+          <article class="card">
+            <span class="status ${p.status === 'OK' ? 'ok' : 'beta'}">${p.status}</span>
+            <div class='title'><span class='icon' style='color:${icon.color}'>${icon.svg}</span><h3>${p.name}</h3></div>
+            <p>${p.desc ?? ''}</p>
+            <div class="tags">${(p.tags||[]).map(t => `<span class='tag'>#${t}</span>`).join('')}</div>
+            <div class="actions">
+              <a class="pill primary" href="${p.url}" target="_blank" rel="noopener">Abrir ↗</a>
+              ${p.embed ? `<button class="pill ghost" data-open-tab="${p.id}">Abrir no portal</button>` : ''}
+            </div>
+          </article>
+        `;
+        slide.innerHTML = cardHTML;
+        projectsContainer.appendChild(slide);
+      });
+
+      swiperInstance = new Swiper('.swiper', swiperConfig);
+      
+      document.querySelectorAll('[data-open-tab]').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true));
+      });
+      document.querySelectorAll('[data-open-tab]').forEach(btn => btn.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-open-tab');
+        const item = PROJECTS.find(x => x.id === id);
+        if (item) openTab(item);
+      }));
+    }
+
+    function filter(term) {
+      term = term.toLowerCase().trim();
+      if (!term) return PROJECTS;
+      return PROJECTS.filter(p =>
+        (p.name && p.name.toLowerCase().includes(term)) ||
+        (p.desc && p.desc.toLowerCase().includes(term)) ||
+        (p.tags && p.tags.join(' ').toLowerCase().includes(term))
+      );
+    }
+
+    q.addEventListener('input', () => {
+        renderCarousel(filter(q.value));
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); q.focus(); q.select(); }
+    });
+
+    // === TEMA ===
+    const toggleBtn = document.getElementById('toggleTheme');
+    function applyTheme(t){ document.documentElement.classList.toggle('light', t === 'light'); localStorage.setItem('theme', t); toggleBtn.textContent = t === 'light' ? '🌞 Tema' : '🌙 Tema'; }
+    const savedTheme = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    applyTheme(savedTheme);
+    toggleBtn.addEventListener('click', () => applyTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+
+    // === ABAS de Conteúdo ===
+    const tabbar = document.getElementById('tabbar');
+    const tabcontent = document.getElementById('tabcontent');
+    const tabempty = document.getElementById('tabempty');
+    const tabsState = new Map();
+    function activateTab(id){
+      for (const [tid, {tabEl, frameEl}] of tabsState.entries()){
+        const active = tid === id;
+        tabEl.classList.toggle('active', active);
+        frameEl.style.display = active ? 'block' : 'none';
+      }
+      tabempty.style.display = tabsState.size ? 'none' : 'block';
+      localStorage.setItem('activeTab', id || '');
+    }
+    function openTab(item){
+      if (tabsState.has(item.id)) { activateTab(item.id); return; }
+      const icon = getIcon(item);
+      const tabEl = document.createElement('button');
+      tabEl.className = 'tab';
+      tabEl.innerHTML = `<span class='icon' style='color:${icon.color}'>${icon.svg}</span> ${item.name} <button class="close" title="Fechar">×</button>`;
+      tabEl.addEventListener('click', (e) => { if (e.target.classList.contains('close')) return; activateTab(item.id); });
+      const closeBtn = tabEl.querySelector('.close');
+      closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(item.id); });
+      tabbar.appendChild(tabEl);
+      const frameEl = document.createElement('iframe');
+      frameEl.loading = 'lazy';
+      frameEl.referrerPolicy = 'no-referrer-when-downgrade';
+      const u = new URL(item.url, location.href);
+      const isStreamlit = u.hostname.endsWith('.streamlit.app');
+      const withEmbed = u.searchParams.has('embed') ? u.toString() : (u.toString() + (u.search ? '&' : '?') + 'embed=true');
+      if (isStreamlit) {
+        frameEl.removeAttribute('sandbox');
+        frameEl.allow = 'clipboard-read; clipboard-write; fullscreen; geolocation; camera; microphone; autoplay';
+        frameEl.src = withEmbed;
+      } else {
+        frameEl.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads allow-popups-to-escape-sandbox');
+        frameEl.src = item.url;
+      }
+      tabcontent.appendChild(frameEl);
+      tabsState.set(item.id, { tabEl, frameEl });
+      persistTabs();
+      activateTab(item.id);
+    }
+    function closeTab(id){
+      const entry = tabsState.get(id); if (!entry) return;
+      entry.tabEl.remove(); entry.frameEl.remove(); tabsState.delete(id);
+      const lastId = Array.from(tabsState.keys()).pop();
+      activateTab(lastId);
+      persistTabs();
+    }
+    function persistTabs(){
+      const openIds = Array.from(tabsState.keys());
+      localStorage.setItem('openTabs', JSON.stringify(openIds));
+    }
+    function restoreTabs(){
+      const openIds = JSON.parse(localStorage.getItem('openTabs') || '[]');
+      const activeId = localStorage.getItem('activeTab') || '';
+      for (const id of openIds){
+        const item = PROJECTS.find(p => p.id === id);
+        if (item) openTab(item);
+      }
+      if (activeId && tabsState.has(activeId)) activateTab(activeId);
+    }
+
+    // === INICIALIZAÇÃO ===
+    renderCarousel(PROJECTS);
+    restoreTabs();
+
+  </script>
+</body>
+</html>
